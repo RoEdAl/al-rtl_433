@@ -2,7 +2,7 @@
 # Modifications: Edmunt Pienkowsky <roed@onet.eu>
 
 pkgname=rtl_433-git
-pkgver=19.08.r170.g8d827b62
+pkgver=19.08.r171.g5ef568cd
 pkgrel=1
 pkgdesc="Turns your Realtek RTL2832 based DVB dongle into a 433.92MHz generic data receiver"
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
@@ -42,6 +42,6 @@ build() {
 }
 
 package() {
-	cmake --install ${srcdir}/build --prefix ${pkgdir}
-
+	cmake --build "${srcdir}/build" -- DESTDIR="${pkgdir}" install
+	mv ${pkgdir}/usr/etc ${pkgdir}
 }
