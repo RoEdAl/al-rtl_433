@@ -1,9 +1,11 @@
 # Maintainer: Dominik Heidler <dominik@heidler.eu>
+# Modifications: Edmunt Pienkowsky <roed@onet.eu>
+
 pkgname=rtl_433-git
-pkgver=18.12.r127.g92617a4
+pkgver=19.08.r170.g8d827b62
 pkgrel=1
 pkgdesc="Turns your Realtek RTL2832 based DVB dongle into a 433.92MHz generic data receiver"
-arch=('i686' 'x86_64' 'armv7h' 'aarch64')
+arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 license=('GPL')
 depends=('rtl-sdr')
 makedepends=('git' 'gcc' 'cmake')
@@ -11,26 +13,35 @@ optdepends=()
 provides=('rtl_433')
 conflicts=('rtl_433')
 url="https://github.com/merbanan/rtl_433"
-source=('git://github.com/merbanan/rtl_433.git')
-md5sums=('SKIP')
+source=(
+    'git://github.com/merbanan/rtl_433.git'
+     '0001-Do-not-select-release-build-type-as-default.patch'
+)
+md5sums=('SKIP'
+         '3a0dad691b34f809be22d692514070e2')
 
 _gitname=rtl_433
 
 pkgver() {
-	cd $srcdir/$_gitname
+	cd ${srcdir}/${_gitname}
 	git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
+prepare() {
+	cd ${srcdir}/${_gitname}
+	git log -1 --format=%ct > ${srcdir}/source-date-epoch
+	git am ${srcdir}/0001-Do-not-select-release-build-type-as-default.patch
+}
+
 build() {
-	cd $srcdir/$_gitname
-	pwd
-	mkdir -p build
-	cd build
-	cmake -DCMAKE_INSTALL_PREFIX=/usr ..
-	make
+	mkdir -p ${srcdir}/build
+	cd ${srcdir}/build
+	cmake -DCMAKE_INSTALL_PREFIX=/usr ../${_gitname}
+	cd ${srcdir}
+	env SOURCE_DATE_EPOCH=$(cat source-date-epoch) cmake --build build --clean-first
 }
 
 package() {
-	cd $srcdir/$_gitname/build
-	make DESTDIR=$pkgdir install
+	cmake --install ${srcdir}/build --prefix ${pkgdir}
+
 }

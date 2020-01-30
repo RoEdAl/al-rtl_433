@@ -1,0 +1,102 @@
+From cb25bb6671222e701ab22445f4a0976695ad9aa3 Mon Sep 17 00:00:00 2001
+From: Edmunt Pienkowsky <roed@onet.eu>
+Date: Thu, 30 Jan 2020 13:09:03 +0100
+Subject: [PATCH] Do not select release build type as default
+
+Use definitions from CPPFLAGS environment variable.
+
+Use -ffile-prefix-map compiler flag.
+
+Signed-off-by: Edmunt Pienkowsky <roed@onet.eu>
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index cd2ad7d..81e62c8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -13,13 +13,6 @@ endif()
+ 
+ project(rtl433 C)
+ 
+-#select the release build type by default to get optimization flags
+-if(NOT CMAKE_BUILD_TYPE)
+-   set(CMAKE_BUILD_TYPE "Release")
+-   message(STATUS "Build type not specified: defaulting to release.")
+-endif(NOT CMAKE_BUILD_TYPE)
+-set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
+-
+ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
+ 
+ ########################################################################
+@@ -35,9 +28,9 @@ if(GIT_COMMIT) # is a git repo
+     git_timestamp(GIT_TIMESTAMP)
+     message(STATUS "Found Git version: ${GIT_REFSPEC} commit ${GIT_COMMIT} from ${GIT_TIMESTAMP_ISO}")
+     message(STATUS "Using Git version tag: ${GIT_VERSION} on ${GIT_BRANCH} at ${GIT_TIMESTAMP}")
+-    ADD_DEFINITIONS(-DGIT_VERSION=${GIT_VERSION})
+-    ADD_DEFINITIONS(-DGIT_BRANCH=${GIT_BRANCH})
+-    ADD_DEFINITIONS(-DGIT_TIMESTAMP=${GIT_TIMESTAMP})
++    ADD_COMPILE_DEFINITIONS(GIT_VERSION=${GIT_VERSION})
++    ADD_COMPILE_DEFINITIONS(GIT_BRANCH=${GIT_BRANCH})
++    ADD_COMPILE_DEFINITIONS(GIT_TIMESTAMP=${GIT_TIMESTAMP})
+ endif()
+ 
+ ########################################################################
+@@ -46,32 +39,45 @@ endif()
+ set(CMAKE_C_EXTENSIONS OFF)
+ set(CMAKE_C_STANDARD 99)
+ if(("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_C_COMPILER_ID}" MATCHES "Clang") AND NOT WIN32)
+-    ADD_DEFINITIONS(-Wall)
+-    ADD_DEFINITIONS(-Wextra)
+-    ADD_DEFINITIONS(-Wsign-compare)
+-    ADD_DEFINITIONS(-Wno-unused)
+-    ADD_DEFINITIONS(-Wno-unused-parameter)
+-    ADD_DEFINITIONS(-Wno-missing-field-initializers)
+-    ADD_DEFINITIONS(-std=c99)
+-    ADD_DEFINITIONS(-pedantic)
++    ADD_COMPILE_OPTIONS(-Wall)
++    ADD_COMPILE_OPTIONS(-Wextra)
++    ADD_COMPILE_OPTIONS(-Wsign-compare)
++    ADD_COMPILE_OPTIONS(-Wno-unused)
++    ADD_COMPILE_OPTIONS(-Wno-unused-parameter)
++    ADD_COMPILE_OPTIONS(-Wno-missing-field-initializers)
++    ADD_COMPILE_OPTIONS(-pedantic)
+     # for strdup, setenv, use either
+     #ADD_DEFINITIONS(-D_POSIX_C_SOURCE=200809) # does not work with uClibc
+-    ADD_DEFINITIONS(-D_GNU_SOURCE)
++    ADD_COMPILE_DEFINITIONS(_GNU_SOURCE)
+     #http://gcc.gnu.org/wiki/Visibility
+-    add_definitions(-fvisibility=hidden)
++    ADD_COMPILE_OPTIONS(-fvisibility=hidden)
+ 
+     # CMake Release default for GCC/Clang is "-O3 -DNDEBUG"
+     # set(CMAKE_C_FLAGS_RELEASE -O2)
+     # CMake Debug default for GCC/Clang is "-g -DNDEBUG"
+     # set(CMAKE_C_FLAGS_DEBUG -g3 -O0)
+     # make use of ASAN
+-    set(CMAKE_C_FLAGS_DEBUG "-ggdb -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer")
+ endif()
+ if("${CMAKE_C_COMPILER_ID}" MATCHES "Clang")
+     # make sure we don't accidentally copy more than an int
+     ADD_DEFINITIONS(-Wlarge-by-value-copy=8)
+ endif()
+ 
++if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 8.0)
++    MESSAGE(STATUS "Stripping source folder information")
++    ADD_COMPILE_OPTIONS(-ffile-prefix-map=${CMAKE_SOURCE_DIR}=.)
++endif()
++
++# use definition from CPPFLAGS environment variable (if defined)
++IF(DEFINED ENV{CPPFLAGS})
++    ADD_DEFINITIONS($ENV{CPPFLAGS})
++ENDIF()
++
++IF(DEFINED ENV{SOURCE_DATE_EPOCH})
++    STRING(TIMESTAMP SOURCE_DATE_EPOCH UTC)
++    MESSAGE(STATUS "Source date epoch: ${SOURCE_DATE_EPOCH}")
++ENDIF()
++
+ # Shut MSVC up about strdup and strtok
+ if(MSVC)
+     ADD_DEFINITIONS(-D_CRT_NONSTDC_NO_DEPRECATE)
+-- 
+2.25.0
+
