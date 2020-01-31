@@ -2,9 +2,9 @@
 # Modifications: Edmunt Pienkowsky <roed@onet.eu>
 
 pkgname=rtl_433-git
-pkgver=19.08.r171.g5ef568cd
+pkgver=19.08.r172.g3a9a2d55
 pkgrel=1
-pkgdesc="Turns your Realtek RTL2832 based DVB dongle into a 433.92MHz generic data receiver"
+pkgdesc='Program to decode traffic from devices that are broadcasting on 433.9 MHz like temperature sensors'
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 license=('GPL')
 depends=('rtl-sdr')
@@ -12,7 +12,7 @@ makedepends=('git' 'gcc' 'cmake')
 optdepends=()
 provides=('rtl_433')
 conflicts=('rtl_433')
-url="https://github.com/merbanan/rtl_433"
+url='https://github.com/merbanan/rtl_433'
 source=(
     'git://github.com/merbanan/rtl_433.git'
      '0001-Do-not-select-release-build-type-as-default.patch'
@@ -30,7 +30,7 @@ pkgver() {
 prepare() {
 	cd ${srcdir}/${_gitname}
 	git log -1 --format=%ct > ${srcdir}/source-date-epoch
-	git am ${srcdir}/0001-Do-not-select-release-build-type-as-default.patch
+	git apply ${srcdir}/0001-Do-not-select-release-build-type-as-default.patch
 }
 
 build() {
