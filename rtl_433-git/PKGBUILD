@@ -2,7 +2,7 @@
 # Modifications: Edmunt Pienkowsky <roed@onet.eu>
 
 pkgname=rtl_433-git
-pkgver=19.08.r172.g3a9a2d55
+pkgver=20.02.r2.g2f0f6906
 pkgrel=1
 pkgdesc='Program to decode traffic from devices that are broadcasting on 433.9 MHz like temperature sensors'
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
