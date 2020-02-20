@@ -1,0 +1,40 @@
+# Maintainer: Dominik Heidler <dominik@heidler.eu>
+# Modifications: Edmunt Pienkowsky <roed@onet.eu>
+
+pkgname=rtl_433
+pkgver=20.02
+pkgrel=1
+pkgdesc='Program to decode traffic from devices that are broadcasting on 433.9 MHz like temperature sensors'
+arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
+license=('GPL')
+depends=('rtl-sdr')
+makedepends=('git' 'gcc' 'cmake')
+optdepends=()
+url='https://github.com/merbanan/rtl_433'
+source=(
+    "${pkgname}-${pkgver}.tar.gz::http://github.com/merbanan/${pkgname}/archive/${pkgver}.tar.gz"
+     '0001-Do-not-select-release-build-type-as-default.patch'
+)
+md5sums=('218c592a022b6073735abbf1479173c3'
+         '3a0dad691b34f809be22d692514070e2')
+
+# 1 February 2020 00:00:00
+_source_date_epoch=1580515200
+
+prepare() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	git apply ${srcdir}/0001-Do-not-select-release-build-type-as-default.patch
+}
+
+build() {
+	mkdir -p ${srcdir}/build
+	cd ${srcdir}/build
+	cmake -DCMAKE_INSTALL_PREFIX=/usr ../${pkgname}-${pkgver}
+	cd ${srcdir}
+	env SOURCE_DATE_EPOCH=${_source_date_epoch} cmake --build build --clean-first
+}
+
+package() {
+	cmake --build "${srcdir}/build" -- DESTDIR="${pkgdir}" install
+	mv ${pkgdir}/usr/etc ${pkgdir}
+}
