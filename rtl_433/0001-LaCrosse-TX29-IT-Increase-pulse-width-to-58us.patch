@@ -1,0 +1,36 @@
+From 2422c760ffef85abaa45020ca1430b45248c1b70 Mon Sep 17 00:00:00 2001
+From: Edmunt Pienkowsky <roed@onet.eu>
+Date: Sun, 15 Mar 2020 11:29:11 +0100
+Subject: [PATCH 1/2] LaCrosse TX29-IT: Increase pulse width to 58us
+
+
+diff --git a/src/devices/lacrosse_tx35.c b/src/devices/lacrosse_tx35.c
+index 8bbb7b9..ed51f6a 100644
+--- a/src/devices/lacrosse_tx35.c
++++ b/src/devices/lacrosse_tx35.c
+@@ -108,8 +108,10 @@ static int lacrosse_it(r_device *decoder, bitbuffer_t *bitbuffer, int device29or
+         r_crc = out[4];
+         c_crc = crc8(&out[0], 4, LACROSSE_TX35_CRC_POLY, LACROSSE_TX35_CRC_INIT);
+         if (r_crc != c_crc) {
+-            if (decoder->verbose)
++            if (decoder->verbose) {
+                 fprintf(stderr, "LaCrosse TX29/35 bad CRC: calculated %02x, received %02x\n", c_crc, r_crc);
++                bitrow_print(out, 40);
++	    }
+             // reject row
+             continue; // DECODE_FAIL_MIC
+         }
+@@ -182,8 +184,8 @@ static char *output_fields[] = {
+ r_device lacrosse_tx29 = {
+     .name           = "LaCrosse TX29IT Temperature sensor",
+     .modulation     = FSK_PULSE_PCM,
+-    .short_width    = 55,
+-    .long_width     = 55,
++    .short_width    = 58,
++    .long_width     = 58,
+     .reset_limit    = 4000,
+     .decode_fn      = &lacrossetx29_callback,
+     .disabled       = 0,
+-- 
+2.25.1
+

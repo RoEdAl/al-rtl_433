@@ -1,7 +1,7 @@
-From cb25bb6671222e701ab22445f4a0976695ad9aa3 Mon Sep 17 00:00:00 2001
+From f7f4f0c53b59c153b42198dc7b7695f0a3c06ceb Mon Sep 17 00:00:00 2001
 From: Edmunt Pienkowsky <roed@onet.eu>
 Date: Thu, 30 Jan 2020 13:09:03 +0100
-Subject: [PATCH] Do not select release build type as default
+Subject: [PATCH 2/2] Do not select release build type as default
 
 Use definitions from CPPFLAGS environment variable.
 
@@ -98,5 +98,5 @@ index cd2ad7d..81e62c8 100644
  if(MSVC)
      ADD_DEFINITIONS(-D_CRT_NONSTDC_NO_DEPRECATE)
 -- 
-2.25.0
+2.25.1
 

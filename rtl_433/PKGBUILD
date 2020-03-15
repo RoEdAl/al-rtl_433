@@ -3,7 +3,7 @@
 
 pkgname=rtl_433
 pkgver=20.02
-pkgrel=1
+pkgrel=2
 pkgdesc='Program to decode traffic from devices that are broadcasting on 433.9 MHz like temperature sensors'
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 license=('GPL')
@@ -13,17 +13,20 @@ optdepends=()
 url='https://github.com/merbanan/rtl_433'
 source=(
     "${pkgname}-${pkgver}.tar.gz::http://github.com/merbanan/${pkgname}/archive/${pkgver}.tar.gz"
-     '0001-Do-not-select-release-build-type-as-default.patch'
+    '0001-LaCrosse-TX29-IT-Increase-pulse-width-to-58us.patch'
+    '0002-Do-not-select-release-build-type-as-default.patch'
 )
 md5sums=('218c592a022b6073735abbf1479173c3'
-         '3a0dad691b34f809be22d692514070e2')
+         'bd4655af82930c7d152c38f0b0c6585b'
+         'dec8e8c9e9f6ceef442fb211e4e512f3')
 
 # 1 February 2020 00:00:00
 _source_date_epoch=1580515200
 
 prepare() {
 	cd ${srcdir}/${pkgname}-${pkgver}
-	git apply ${srcdir}/0001-Do-not-select-release-build-type-as-default.patch
+	git apply ${srcdir}/0001-LaCrosse-TX29-IT-Increase-pulse-width-to-58us.patch
+	git apply ${srcdir}/0002-Do-not-select-release-build-type-as-default.patch
 }
 
 build() {
