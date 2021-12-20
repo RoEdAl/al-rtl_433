@@ -2,8 +2,8 @@
 # Modifications: Edmunt Pienkowsky <roed@onet.eu>
 
 pkgname=rtl_433
-pkgver=20.02
-pkgrel=2
+pkgver=21.12
+pkgrel=1
 pkgdesc='Program to decode traffic from devices that are broadcasting on 433.9 MHz like temperature sensors'
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 license=('GPL')
@@ -16,12 +16,9 @@ source=(
     '0001-LaCrosse-TX29-IT-Increase-pulse-width-to-58us.patch'
     '0002-Do-not-select-release-build-type-as-default.patch'
 )
-md5sums=('218c592a022b6073735abbf1479173c3'
-         'bd4655af82930c7d152c38f0b0c6585b'
-         'dec8e8c9e9f6ceef442fb211e4e512f3')
-
-# 1 February 2020 00:00:00
-_source_date_epoch=1580515200
+md5sums=('26178f9f5c194dd504797afecb228b05'
+         '7ae6425325642dc2965bd145604a0671'
+         '59a294c16e68262e8026b3b551c63fb1')
 
 prepare() {
 	cd ${srcdir}/${pkgname}-${pkgver}
@@ -34,7 +31,7 @@ build() {
 	cd ${srcdir}/build
 	cmake -DCMAKE_INSTALL_PREFIX=/usr ../${pkgname}-${pkgver}
 	cd ${srcdir}
-	env SOURCE_DATE_EPOCH=${_source_date_epoch} cmake --build build --clean-first
+	cmake --build build --clean-first -- V=1
 }
 
 package() {

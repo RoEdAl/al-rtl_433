@@ -1,18 +1,25 @@
-From f7f4f0c53b59c153b42198dc7b7695f0a3c06ceb Mon Sep 17 00:00:00 2001
+From 94228e0e5f6fbcf8372df2f448de05b77cc52c7f Mon Sep 17 00:00:00 2001
 From: Edmunt Pienkowsky <roed@onet.eu>
-Date: Thu, 30 Jan 2020 13:09:03 +0100
+Date: Mon, 20 Dec 2021 10:29:15 +0100
 Subject: [PATCH 2/2] Do not select release build type as default
 
 Use definitions from CPPFLAGS environment variable.
 
 Use -ffile-prefix-map compiler flag.
 
-Signed-off-by: Edmunt Pienkowsky <roed@onet.eu>
-
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index cd2ad7d..81e62c8 100644
+index a3f11ac9..4f6fe450 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
+@@ -1,7 +1,7 @@
+ ########################################################################
+ # Project setup
+ ########################################################################
+-cmake_minimum_required(VERSION 2.6)
++cmake_minimum_required(VERSION 3.6)
+ # Fix behavior of CMAKE_C_STANDARD when targeting macOS.
+ if(POLICY CMP0025)
+     cmake_policy(SET CMP0025 NEW)
 @@ -13,13 +13,6 @@ endif()
  
  project(rtl433 C)
@@ -40,28 +47,39 @@ index cd2ad7d..81e62c8 100644
  endif()
  
  ########################################################################
-@@ -46,32 +39,45 @@ endif()
+@@ -66,37 +59,51 @@ endif()
  set(CMAKE_C_EXTENSIONS OFF)
  set(CMAKE_C_STANDARD 99)
  if(("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_C_COMPILER_ID}" MATCHES "Clang") AND NOT WIN32)
 -    ADD_DEFINITIONS(-Wall)
 -    ADD_DEFINITIONS(-Wextra)
+-    ADD_DEFINITIONS(-Wvla)
 -    ADD_DEFINITIONS(-Wsign-compare)
--    ADD_DEFINITIONS(-Wno-unused)
--    ADD_DEFINITIONS(-Wno-unused-parameter)
--    ADD_DEFINITIONS(-Wno-missing-field-initializers)
 -    ADD_DEFINITIONS(-std=c99)
 -    ADD_DEFINITIONS(-pedantic)
+-    ADD_DEFINITIONS(-Wshadow)
+-    ADD_DEFINITIONS(-Wmissing-prototypes)
+-    ADD_DEFINITIONS(-Wimplicit-fallthrough)
+-    #ADD_DEFINITIONS(-Wfloat-equal)
+-    #ADD_DEFINITIONS(-Wbad-function-cast)
+-    #ADD_DEFINITIONS(-Wdocumentation)
 +    ADD_COMPILE_OPTIONS(-Wall)
 +    ADD_COMPILE_OPTIONS(-Wextra)
++    ADD_COMPILE_OPTIONS(-Wvla)
 +    ADD_COMPILE_OPTIONS(-Wsign-compare)
-+    ADD_COMPILE_OPTIONS(-Wno-unused)
-+    ADD_COMPILE_OPTIONS(-Wno-unused-parameter)
-+    ADD_COMPILE_OPTIONS(-Wno-missing-field-initializers)
++    ADD_COMPILE_OPTIONS(-std=c99)
 +    ADD_COMPILE_OPTIONS(-pedantic)
++    ADD_COMPILE_OPTIONS(-Wshadow)
++    ADD_COMPILE_OPTIONS(-Wmissing-prototypes)
++    ADD_COMPILE_OPTIONS(-Wimplicit-fallthrough)
++    #ADD_COMPILE_OPTIONS(-Wfloat-equal)
++    #ADD_COMPILE_OPTIONS(-Wbad-function-cast)
++    #ADD_COMPILE_OPTIONS(-Wdocumentation)
+ 
      # for strdup, setenv, use either
-     #ADD_DEFINITIONS(-D_POSIX_C_SOURCE=200809) # does not work with uClibc
+-    #ADD_DEFINITIONS(-D_POSIX_C_SOURCE=200809) # does not work with uClibc
 -    ADD_DEFINITIONS(-D_GNU_SOURCE)
++    #ADD_COMPILE_DEFINITIONS(_POSIX_C_SOURCE=200809) # does not work with uClibc
 +    ADD_COMPILE_DEFINITIONS(_GNU_SOURCE)
      #http://gcc.gnu.org/wiki/Visibility
 -    add_definitions(-fvisibility=hidden)
@@ -76,13 +94,14 @@ index cd2ad7d..81e62c8 100644
  endif()
  if("${CMAKE_C_COMPILER_ID}" MATCHES "Clang")
      # make sure we don't accidentally copy more than an int
-     ADD_DEFINITIONS(-Wlarge-by-value-copy=8)
+-    ADD_DEFINITIONS(-Wlarge-by-value-copy=8)
++    ADD_COMPILE_OPTIONS(-Wlarge-by-value-copy=8)
  endif()
  
-+if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 8.0)
++IF("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 8.0)
 +    MESSAGE(STATUS "Stripping source folder information")
 +    ADD_COMPILE_OPTIONS(-ffile-prefix-map=${CMAKE_SOURCE_DIR}=.)
-+endif()
++ENDIF()
 +
 +# use definition from CPPFLAGS environment variable (if defined)
 +IF(DEFINED ENV{CPPFLAGS})
@@ -97,6 +116,3 @@ index cd2ad7d..81e62c8 100644
  # Shut MSVC up about strdup and strtok
  if(MSVC)
      ADD_DEFINITIONS(-D_CRT_NONSTDC_NO_DEPRECATE)
--- 
-2.25.1
-
