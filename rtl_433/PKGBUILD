@@ -31,7 +31,7 @@ build() {
 	cd ${srcdir}/build
 	cmake -DCMAKE_INSTALL_PREFIX=/usr ../${pkgname}-${pkgver}
 	cd ${srcdir}
-	cmake --build build --clean-first -- V=1
+	cmake --build build --clean-first
 }
 
 package() {
